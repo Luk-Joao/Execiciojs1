@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validação Assíncrona</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            padding-right: 45px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="text"].checking {
+            border-color: #f39c12;
+        }
+
+        input[type="text"].valid {
+            border-color: #27ae60;
+        }
+
+        input[type="text"].invalid {
+            border-color: #e74c3c;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3em;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #f39c12;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .validation-message {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .validation-message.show {
+            display: block;
+        }
+
+        .validation-message.checking {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #f39c12;
+        }
+
+        .validation-message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #27ae60;
+        }
+
+        .validation-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .help-text {
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .taken-usernames {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .taken-usernames h3 {
+            font-size: 1em;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .username-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .username-tag {
+            background: #e9ecef;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            color: #495057;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .demo-section {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .demo-section h3 {
+            font-size: 0.95em;
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .demo-section p {
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Validação de Username</h1>
+        <div class="subtitle">Verificação assíncrona simulada</div>
+
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="username">Nome de usuário</label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="username" 
+                        placeholder="Digite seu nome de usuário"
+                        autocomplete="off"
+                    >
+                    <div class="input-icon" id="inputIcon"></div>
+                </div>
+                <div class="help-text">Mínimo 3 caracteres, sem espaços</div>
+                <div class="validation-message" id="validationMessage"></div>
+            </div>
+
+            <button type="submit" id="submitBtn" disabled>✅ Registrar</button>
+        </form>
+
+        <div class="taken-usernames">
+            <h3>📋 Usernames já cadastrados (simulado):</h3>
+            <div class="username-list">
+                <span class="username-tag">admin</span>
+                <span class="username-tag">user</span>
+                <span class="username-tag">teste</span>
+                <span class="username-tag">root</span>
+                <span class="username-tag">guest</span>
+                <span class="username-tag">moderator</span>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h3>💡 Como funciona:</h3>
+            <p>
+                Após digitar, aguarda-se 1 segundo de inatividade. 
+                Então simula-se uma chamada de API (2 segundos) 
+                para verificar se o username já existe no "banco de dados".
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Simular banco de dados de usernames já cadastrados
+        const takenUsernames = ['admin', 'user', 'teste', 'root', 'guest', 'moderator'];
+        
+        let validationTimeout = null;
+        let isValidating = false;
+        let isValid = false;
+
+        const usernameInput = document.getElementById('username');
+        const validationMessage = document.getElementById('validationMessage');
+        const inputIcon = document.getElementById('inputIcon');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Função que simula chamada de API
+        function checkUsernameAvailability(username) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const isTaken = takenUsernames.includes(username.toLowerCase());
+                    resolve({
+                        available: !isTaken,
+                        message: isTaken 
+                            ? '❌ Nome já em uso' 
+                            : '✅ Nome disponível'
+                    });
+                }, 2000); // Simula latência de 2 segundos
+            });
+        }
+
+        // Validações básicas
+        function validateFormat(username) {
+            if (username.length === 0) {
+                return { valid: false, message: '' };
+            }
+            
+            if (username.length < 3) {
+                return { 
+                    valid: false, 
+                    message: '⚠️ Username deve ter no mínimo 3 caracteres' 
+                };
+            }
+            
+            if (username.includes(' ')) {
+                return { 
+                    valid: false, 
+                    message: '⚠️ Username não pode conter espaços' 
+                };
+            }
+            
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                return { 
+                    valid: false, 
+                    message: '⚠️ Use apenas letras, números e underscore' 
+                };
+            }
+            
+            return { valid: true, message: '' };
+        }
+
+        // Mostrar mensagem
+        function showMessage(type, message) {
+            validationMessage.className = `validation-message ${type} show`;
+            validationMessage.textContent = message;
+        }
+
+        // Limpar mensagem
+        function clearMessage() {
+            validationMessage.classList.remove('show');
+        }
+
+        // Atualizar ícone de status
+        function updateIcon(status) {
+            inputIcon.innerHTML = '';
+            
+            switch(status) {
+                case 'checking':
+                    const spinner = document.createElement('div');
+                    spinner.className = 'spinner';
+                    inputIcon.appendChild(spinner);
+                    break;
+                case 'valid':
+                    inputIcon.textContent = '✓';
+                    inputIcon.style.color = '#27ae60';
+                    break;
+                case 'invalid':
+                    inputIcon.textContent = '✗';
+                    inputIcon.style.color = '#e74c3c';
+                    break;
+                default:
+                    inputIcon.textContent = '';
+            }
+        }
+
+        // Validar username
+        async function validateUsername(username) {
+            // Limpar input class
+            usernameInput.className = '';
+            isValid = false;
+            submitBtn.disabled = true;
+
+            // Validação de formato
+            const formatCheck = validateFormat(username);
+            if (!formatCheck.valid) {
+                if (formatCheck.message) {
+                    showMessage('error', formatCheck.message);
+                    updateIcon('invalid');
+                    usernameInput.classList.add('invalid');
+                } else {
+                    clearMessage();
+                    updateIcon('');
+                }
+                return;
+            }
+
+            // Mostrar loading
+            usernameInput.classList.add('checking');
+            updateIcon('checking');
+            showMessage('checking', '🔍 Verificando disponibilidade...');
+            isValidating = true;
+
+            // Simular chamada de API
+            const result = await checkUsernameAvailability(username);
+
+            // Atualizar UI com resultado
+            isValidating = false;
+            usernameInput.classList.remove('checking');
+
+            if (result.available) {
+                usernameInput.classList.add('valid');
+                updateIcon('valid');
+                showMessage('success', result.message);
+                isValid = true;
+                submitBtn.disabled = false;
+            } else {
+                usernameInput.classList.add('invalid');
+                updateIcon('invalid');
+                showMessage('error', result.message);
+                isValid = false;
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Event listener no input
+        usernameInput.addEventListener('input', (e) => {
+            const username = e.target.value.trim();
+
+            // Cancelar validação anterior
+            if (validationTimeout) {
+                clearTimeout(validationTimeout);
+            }
+
+            // Se estiver vazio, limpar tudo
+            if (username.length === 0) {
+                clearMessage();
+                updateIcon('');
+                usernameInput.className = '';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            // Aguardar 1 segundo após parar de digitar
+            validationTimeout = setTimeout(() => {
+                validateUsername(username);
+            }, 1000);
+        });
+
+        // Prevenir submit se não for válido
+        document.getElementById('registrationForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (isValid) {
+                alert(`✅ Usuário "${usernameInput.value}" registrado com sucesso!`);
+                usernameInput.value = '';
+                clearMessage();
+                updateIcon('');
+                usernameInput.className = '';
+                submitBtn.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>

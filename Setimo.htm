@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Ranking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="number"] {
+            flex: 0.6;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-add:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-clear {
+            background: #e74c3c;
+            color: white;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-clear:hover {
+            background: #c0392b;
+        }
+
+        .ranking-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .ranking-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .ranking-list {
+            list-style: none;
+        }
+
+        .ranking-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .ranking-position {
+            font-size: 1.5em;
+            font-weight: bold;
+            min-width: 50px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .position-number {
+            color: #667eea;
+        }
+
+        .medal {
+            font-size: 1.3em;
+        }
+
+        .ranking-info {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .player-name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .player-points {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .points-label {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            background: #ffe6e6;
+            color: #c0392b;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            input[type="number"] {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 Mini Ranking</h1>
+        <div class="subtitle">Sistema de classificação de jogadores</div>
+
+        <div class="form-section">
+            <div class="form-title">📝 Adicionar Jogador</div>
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="playerName" 
+                    placeholder="Nome do jogador"
+                    maxlength="30"
+                >
+                <input 
+                    type="number" 
+                    id="playerPoints" 
+                    placeholder="Pontos"
+                    min="0"
+                    max="9999"
+                >
+            </div>
+            <button class="btn-add" onclick="addPlayer()">➕ Adicionar</button>
+            <div class="error-message" id="errorMessage"></div>
+            <button class="btn-clear" onclick="clearRanking()">🗑️ Limpar Ranking</button>
+        </div>
+
+        <div class="ranking-section">
+            <div class="ranking-title">📊 Ranking Atual</div>
+            <ul class="ranking-list" id="rankingList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎮</div>
+                    <div>Nenhum jogador cadastrado ainda</div>
+                </div>
+            </ul>
+
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stat">
+                    <div class="stat-value" id="totalPlayers">0</div>
+                    <div class="stat-label">Jogadores</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalPoints">0</div>
+                    <div class="stat-label">Pontos Totais</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="avgPoints">0</div>
+                    <div class="stat-label">Média</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let players = [
+            { nome: "Ana", pontos: 120 },
+            { nome: "Carlos", pontos: 200 },
+            { nome: "Beatriz", pontos: 150 }
+        ];
+
+        function getMedal(position) {
+            const medals = {
+                1: '🥇',
+                2: '🥈',
+                3: '🥉'
+            };
+            return medals[position] || '';
+        }
+
+        function sortPlayers() {
+            return [...players].sort((a, b) => b.pontos - a.pontos);
+        }
+
+        function renderRanking() {
+            const rankingList = document.getElementById('rankingList');
+            const sortedPlayers = sortPlayers();
+
+            if (sortedPlayers.length === 0) {
+                rankingList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎮</div>
+                        <div>Nenhum jogador cadastrado ainda</div>
+                    </div>
+                `;
+                document.getElementById('stats').style.display = 'none';
+                return;
+            }
+
+            rankingList.innerHTML = sortedPlayers.map((player, index) => {
+                const position = index + 1;
+                const medal = getMedal(position);
+                
+                return `
+                    <li class="ranking-item">
+                        <div class="ranking-position">
+                            <span class="position-number">${position}º</span>
+                            <span class="medal">${medal}</span>
+                        </div>
+                        <div class="ranking-info">
+                            <div class="player-name">${player.nome}</div>
+                        </div>
+                        <div class="player-points">
+                            ${player.pontos}
+                            <span class="points-label">pts</span>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+
+            updateStats(sortedPlayers);
+        }
+
+        function updateStats(sortedPlayers) {
+            const totalPlayers = sortedPlayers.length;
+            const totalPoints = sortedPlayers.reduce((sum, p) => sum + p.pontos, 0);
+            const avgPoints = totalPlayers > 0 ? Math.round(totalPoints / totalPlayers) : 0;
+
+            document.getElementById('totalPlayers').textContent = totalPlayers;
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('avgPoints').textContent = avgPoints;
+            document.getElementById('stats').style.display = 'flex';
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 3000);
+        }
+
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const pointsInput = document.getElementById('playerPoints');
+            
+            const nome = nameInput.value.trim();
+            const pontos = parseInt(pointsInput.value);
+
+            // Validações
+            if (!nome) {
+                showError('⚠️ Por favor, digite o nome do jogador');
+                nameInput.focus();
+                return;
+            }
+
+            if (isNaN(pontos) || pontos < 0) {
+                showError('⚠️ Por favor, digite uma pontuação válida (0 ou mais)');
+                pointsInput.focus();
+                return;
+            }
+
+            // Verificar se já existe
+            if (players.some(p => p.nome.toLowerCase() === nome.toLowerCase())) {
+                showError('⚠️ Esse jogador já está no ranking');
+                nameInput.focus();
+                return;
+            }
+
+            // Adicionar jogador
+            players.push({ nome, pontos });
+            
+            // Limpar inputs
+            nameInput.value = '';
+            pointsInput.value = '';
+            nameInput.focus();
+
+            // Atualizar ranking
+            renderRanking();
+        }
+
+        function clearRanking() {
+            if (players.length === 0) return;
+            
+            if (confirm('⚠️ Tem certeza que deseja limpar todo o ranking?')) {
+                players = [];
+                renderRanking();
+            }
+        }
+
+        // Permitir adicionar com Enter
+        document.getElementById('playerName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('playerPoints').focus();
+            }
+        });
+
+        document.getElementById('playerPoints').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+
+        // Renderizar ranking inicial
+        renderRanking();
+    </script>
+</body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Download</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .download-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .file-icon {
+            text-align: center;
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .file-name {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-wrapper {
+            background: #e0e0e0;
+            border-radius: 50px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            border-radius: 50px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-bar.complete {
+            background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .status-text {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1em;
+            color: #666;
+            min-height: 30px;
+        }
+
+        .status-text.downloading {
+            color: #667eea;
+        }
+
+        .status-text.complete {
+            color: #56ab2f;
+            font-weight: bold;
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-start {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-start:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-pause {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-pause:hover:not(:disabled) {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        .btn-reset {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-reset:hover:not(:disabled) {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .complete-message {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .complete-message.show {
+            display: block;
+        }
+
+        .complete-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📥 Simulador de Download</h1>
+
+        <div class="download-info">
+            <div class="file-icon">📦</div>
+            <div class="file-name">arquivo_importante.zip</div>
+            <div class="file-size">250.5 MB</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+
+        <div class="status-text" id="statusText">Pronto para iniciar</div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="speed">0 MB/s</div>
+                <div class="stat-label">Velocidade</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="timeRemaining">--:--</div>
+                <div class="stat-label">Tempo Restante</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="downloaded">0 MB</div>
+                <div class="stat-label">Baixado</div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-start" id="btnStart" onclick="startDownload()">▶️ Iniciar</button>
+            <button class="btn-pause" id="btnPause" onclick="pauseDownload()" disabled>⏸️ Pausar</button>
+            <button class="btn-reset" id="btnReset" onclick="resetDownload()">🔄 Reiniciar</button>
+        </div>
+
+        <div class="complete-message" id="completeMessage">
+            <div class="complete-icon">✅</div>
+            <h2>Download Completo!</h2>
+            <p>O arquivo foi baixado com sucesso</p>
+        </div>
+    </div>
+
+    <script>
+        let progress = 0;
+        let downloadInterval = null;
+        let isPaused = false;
+        let isComplete = false;
+        const totalSize = 250.5; // MB
+        const incrementSpeed = 0.5; // incremento por intervalo
+
+        function updateProgress() {
+            progress += incrementSpeed;
+            
+            if (progress >= 100) {
+                progress = 100;
+                completeDownload();
+                return;
+            }
+
+            // Atualizar barra de progresso
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress + '%';
+            
+            // Atualizar texto de porcentagem
+            document.getElementById('progressText').textContent = Math.floor(progress) + '%';
+            
+            // Calcular estatísticas
+            const downloaded = (progress / 100 * totalSize).toFixed(1);
+            const speed = (Math.random() * 5 + 3).toFixed(1); // Velocidade simulada entre 3-8 MB/s
+            const remaining = ((100 - progress) / incrementSpeed * 0.1).toFixed(0);
+            const minutes = Math.floor(remaining / 60);
+            const seconds = Math.floor(remaining % 60);
+            
+            // Atualizar estatísticas
+            document.getElementById('downloaded').textContent = downloaded + ' MB';
+            document.getElementById('speed').textContent = speed + ' MB/s';
+            document.getElementById('timeRemaining').textContent = 
+                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            
+            // Atualizar status
+            document.getElementById('statusText').textContent = 'Baixando...';
+            document.getElementById('statusText').className = 'status-text downloading';
+        }
+
+        function startDownload() {
+            if (isComplete) {
+                resetDownload();
+            }
+
+            if (downloadInterval) return; // Já está rodando
+
+            downloadInterval = setInterval(updateProgress, 100);
+            
+            // Atualizar botões
+            document.getElementById('btnStart').disabled = true;
+            document.getElementById('btnPause').disabled = false;
+            document.getElementById('btnPause').textContent = '⏸️ Pausar';
+            
+            isPaused = false;
+            
+            // Atualizar status
+            document.getElementById('statusText').textContent = 'Baixando...';
+            document.getElementById('statusText').className = 'status-text downloading';
+        }
+
+        function pauseDownload() {
+            if (isPaused) {
+                // Retomar
+                downloadInterval = setInterval(updateProgress, 100);
+                document.getElementById('btnPause').textContent = '⏸️ Pausar';
+                document.getElementById('statusText').textContent = 'Baixando...';
+                isPaused = false;
+            } else {
+                // Pausar
+                clearInterval(downloadInterval);
+                downloadInterval = null;
+                document.getElementById('btnPause').textContent = '▶️ Retomar';
+                document.getElementById('statusText').textContent = 'Download pausado';
+                document.getElementById('statusText').className = 'status-text';
+                isPaused = true;
+            }
+        }
+
+        function resetDownload() {
+            clearInterval(downloadInterval);
+            downloadInterval = null;
+            progress = 0;
+            isPaused = false;
+            isComplete = false;
+            
+            // Resetar visual
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').classList.remove('complete');
+            document.getElementById('progressText').textContent = '0%';
+            document.getElementById('statusText').textContent = 'Pronto para iniciar';
+            document.getElementById('statusText').className = 'status-text';
+            document.getElementById('completeMessage').classList.remove('show');
+            
+            // Resetar estatísticas
+            document.getElementById('downloaded').textContent = '0 MB';
+            document.getElementById('speed').textContent = '0 MB/s';
+            document.getElementById('timeRemaining').textContent = '--:--';
+            
+            // Resetar botões
+            document.getElementById('btnStart').disabled = false;
+            document.getElementById('btnPause').disabled = true;
+            document.getElementById('btnPause').textContent = '⏸️ Pausar';
+        }
+
+        function completeDownload() {
+            clearInterval(downloadInterval);
+            downloadInterval = null;
+            isComplete = true;
+            
+            // Atualizar visual
+            document.getElementById('progressBar').classList.add('complete');
+            document.getElementById('statusText').textContent = '✅ Download completo!';
+            document.getElementById('statusText').className = 'status-text complete';
+            document.getElementById('completeMessage').classList.add('show');
+            
+            // Atualizar estatísticas finais
+            document.getElementById('downloaded').textContent = totalSize + ' MB';
+            document.getElementById('speed').textContent = '0 MB/s';
+            document.getElementById('timeRemaining').textContent = '00:00';
+            
+            // Atualizar botões
+            document.getElementById('btnStart').disabled = false;
+            document.getElementById('btnStart').textContent = '🔄 Baixar Novamente';
+            document.getElementById('btnPause').disabled = true;
+        }
+    </script>
+</body>
+</html>

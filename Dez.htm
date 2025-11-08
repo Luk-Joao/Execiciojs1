@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modo Escuro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Tema Claro */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-card: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent: #667eea;
+            --accent-hover: #5568d3;
+            --border: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: #0f3460;
+            --text-primary: #eaeaea;
+            --text-secondary: #b0b0b0;
+            --accent: #e94560;
+            --accent-hover: #d63447;
+            --border: #2d4059;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --gradient-start: #e94560;
+            --gradient-end: #0f3460;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            padding: 30px 20px;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: white;
+            font-size: 2em;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .theme-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s;
+        }
+
+        .theme-toggle:hover .theme-icon {
+            transform: rotate(20deg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .info-card h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .info-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            color: var(--text-primary);
+            font-size: 0.9em;
+        }
+
+        .status-bar {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            color: var(--accent);
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .demo-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🎨 Demonstração de Tema</h1>
+            <button class="theme-toggle" id="themeToggle">
+                <span class="theme-icon" id="themeIcon">🌙</span>
+                <span id="themeText">Modo Escuro</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="info-card">
+            <h2>💡 Sobre este Projeto</h2>
+            <p>
+                Esta página demonstra a implementação de um sistema de alternância entre tema claro e escuro,
+                com persistência da preferência do usuário.
+            </p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🌓</div>
+                <div class="feature-title">Alternância Suave</div>
+                <div class="feature-description">
+                    Transição animada entre os temas com CSS transitions
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">CSS Variables</div>
+                <div class="feature-description">
+                    Uso de variáveis CSS para fácil customização dos temas
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <div class="feature-title">Persistência</div>
+                <div class="feature-description">
+                    Preferência salva (em memória nesta demo, localStorage em produção)
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Responsivo</div>
+                <div class="feature-description">
+                    Design adaptável para todos os tamanhos de tela
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h2>🛠️ Recursos Demonstrados</h2>
+            <div class="demo-buttons">
+                <button class="btn btn-primary">Botão Primário</button>
+                <button class="btn btn-secondary">Botão Secundário</button>
+                <button class="btn btn-primary">Outro Botão</button>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Tema Atual</div>
+                <div class="status-value" id="currentTheme">Claro</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Alterações</div>
+                <div class="status-value" id="toggleCount">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Persistência</div>
+                <div class="status-value">✓ Ativa</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const storage = {
+            data: {},
+            setItem(key, value) {
+                this.data[key] = value;
+            },
+            getItem(key) {
+                return this.data[key] || null;
+            }
+        };
+
+        let toggleCount = 0;
+
+        // Elementos
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const currentThemeDisplay = document.getElementById('currentTheme');
+        const toggleCountDisplay = document.getElementById('toggleCount');
+
+        // Função para aplicar o tema
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Modo Claro';
+                currentThemeDisplay.textContent = 'Escuro';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Modo Escuro';
+                currentThemeDisplay.textContent = 'Claro';
+            }
+        }
+
+        // Função para alternar tema
+        function toggleTheme() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            // Aplicar tema
+            applyTheme(newTheme);
+            
+            // Salvar no storage (localStorage em produção)
+            storage.setItem('theme', newTheme);
+            
+            // Para localStorage real, use:
+            // localStorage.setItem('theme', newTheme);
+            
+            // Atualizar contador
+            toggleCount++;
+            toggleCountDisplay.textContent = toggleCount;
+        }
+
+        // Carregar tema salvo ao iniciar
+        function loadSavedTheme() {
+            // Carregar do storage (localStorage em produção)
+            const savedTheme = storage.getItem('theme');
+            
+            // Para localStorage real, use:
+            // const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme) {
+                applyTheme(savedTheme);
+                console.log('Tema carregado:', savedTheme);
+            } else {
+                console.log('Nenhum tema salvo, usando padrão (claro)');
+            }
+        }
+
+        // Event listener
+        themeToggle.addEventListener('click', toggleTheme);
+
+        // Atalho de teclado (opcional)
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + D para alternar tema
+            if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                e.preventDefault();
+                toggleTheme();
+            }
+        });
+
+        // Carregar tema ao iniciar
+        loadSavedTheme();
+
+        // Detectar preferência do sistema (opcional)
+        if (window.matchMedia) {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+            
+            // Aplicar tema do sistema se não houver preferência salva
+            if (!storage.getItem('theme')) {
+                if (prefersDark.matches) {
+                    applyTheme('dark');
+                    console.log('Tema do sistema detectado: escuro');
+                }
+            }
+            
+            // Ouvir mudanças na preferência do sistema
+            prefersDark.addEventListener('change', (e) => {
+                if (!storage.getItem('theme')) {
+                    applyTheme(e.matches ? 'dark' : 'light');
+                    console.log('Preferência do sistema alterada');
+                }
+            });
+        }
+
+        // Mostrar instruções no console
+        console.log('💡 Dica: Pressione Ctrl+D (ou Cmd+D no Mac) para alternar o tema rapidamente!');
+        console.log('📝 Para usar localStorage real, substitua "storage" por "localStorage" no código.');
+    </script>
+</body>
+</html>
